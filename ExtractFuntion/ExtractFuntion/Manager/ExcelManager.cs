@@ -29,6 +29,7 @@ namespace ExtractFuntion
         }
 
         private Application excelApp = null;
+        private Workbooks excelFiles = null;
         private Workbook excelFile = null;
         private Worksheet worksheet = null;
 
@@ -51,11 +52,13 @@ namespace ExtractFuntion
             
             if(NewFileInfo.Exists)
             {
-                excelFile = excelApp.Workbooks.Open(ExcelFileName);
+                excelFiles = excelApp.Workbooks;
+                excelFile = excelFiles.Open(ExcelFileName);
             }
             else
             {
-                excelFile = excelApp.Workbooks.Add();
+                excelFiles = excelApp.Workbooks;
+                excelFile = excelFiles.Add();
                 excelFile.SaveAs(ExcelFileName);
             }
             
@@ -135,16 +138,20 @@ namespace ExtractFuntion
 
         public void ReleaseMemory()
         {
-            //메모리 해제를 위한 처리
-            Marshal.FinalReleaseComObject(excelFile);
-            Marshal.FinalReleaseComObject(excelFile);
-
-            ReleaseExcelObject(worksheet);
+            excelFile.Close();
             ReleaseExcelObject(excelFile);
+
+            excelFiles.Close();
+            ReleaseExcelObject(excelFiles);
+
+            excelApp.Quit();
             ReleaseExcelObject(excelApp);
 
-            excelFile.Close();
-            excelApp.Quit();
+            //메모리 해제를 위한 처리
+            Marshal.FinalReleaseComObject(excelApp);
+            Marshal.FinalReleaseComObject(excelFiles);
+            Marshal.FinalReleaseComObject(excelFile);
+            Marshal.FinalReleaseComObject(worksheet);
         }
     }
 }

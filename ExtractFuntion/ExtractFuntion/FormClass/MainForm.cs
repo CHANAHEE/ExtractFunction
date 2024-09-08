@@ -87,18 +87,17 @@ namespace ExtractFuntion
                 var Method = Tree.GetRoot().DescendantNodes()
                          .OfType<MethodDeclarationSyntax>();
 
+                // cs 파일의 정보와 해당 cs 파일의 모든 메소드의 정보를 엑셀에 기재
                 for (int i = 0; i < Method.Count(); i++)
                 {
-                    ExcelManager.Instance.Make_CellValue(ClassFile,Method,i);
+                    ExcelManager.Instance.Make_CellValue(ClassFile, Method, i);
                     Console.WriteLine($"Method{i} :{Method.ElementAt(i).Modifiers} {Method.ElementAt(i).ReturnType} {Method.ElementAt(i).Identifier} {Method.ElementAt(i).ParameterList}");
                 }
             }
             catch(Exception ex) 
             {
-                Console.WriteLine($"[Info] {ex.Message}");
+                Console.WriteLine($"[Error] {ex.Message}");
             }
-            ExcelManager.Instance.ReleaseMemory();
-            // cs 파일의 정보와 해당 cs 파일의 모든 메소드의 정보를 엑셀에 기재
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
