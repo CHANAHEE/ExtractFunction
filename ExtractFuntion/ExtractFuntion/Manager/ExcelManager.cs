@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Interop.Excel;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,6 +30,7 @@ namespace ExtractFuntion
 
         private Application excelApp = null;
         private Workbook excelFile = null;
+        private Worksheet worksheet = null;
 
         public string solutionFileName = "";
         public string classFileNames;
@@ -94,21 +96,55 @@ namespace ExtractFuntion
 
         public void Make_ExcelSheet(string ProjectFileName)
         {
-            //엑셀 파일의 시트 관련 객체
-            Worksheet NewWorkSheet = null;
-
             //기본 시트 후에 생성
-            NewWorkSheet = excelFile.Worksheets.Add(Type.Missing, excelFile.Worksheets[1]);
-            NewWorkSheet.Name = ProjectFileName;
+            worksheet = excelFile.Worksheets.Add(Type.Missing, excelFile.Worksheets[1]);
+
+            foreach(Worksheet sheet in excelFile.Sheets)
+            {
+                if(sheet.Name == ProjectFileName)
+                {
+                    return;
+                }
+            }
+
+            worksheet.Name = ProjectFileName;
+
+              
+        }
+
+        public void Make_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method,int CellIndex)
+        {
+            Range ClassCell = worksheet.Cells[CellIndex + 1, 1];
+            Range MethodCell = worksheet.Cells[CellIndex + 1, 2];
+
+            while (true)
+            {
+                if (ClassCell.Value != null)
+                {
+                    return;
+                }               
+
+                break;
+            }
+
+            ClassCell.Value = ClassFiles.Split('\\').Last();
+            MethodCell.Value = $"{Method.ElementAt(CellIndex).Modifiers} {Method.ElementAt(CellIndex).ReturnType} {Method.ElementAt(CellIndex).Identifier} {Method.ElementAt(CellIndex).ParameterList}";
 
             excelFile.Save();
+        }
 
+        public void ReleaseMemory()
+        {
             //메모리 해제를 위한 처리
-            excelFile.Close();
-            excelApp.Quit();
-            ReleaseExcelObject(NewWorkSheet);
+            Marshal.FinalReleaseComObject(excelFile);
+            Marshal.FinalReleaseComObject(excelFile);
+
+            ReleaseExcelObject(worksheet);
             ReleaseExcelObject(excelFile);
             ReleaseExcelObject(excelApp);
+
+            excelFile.Close();
+            excelApp.Quit();
         }
     }
 }
