@@ -2,6 +2,7 @@
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,6 +15,9 @@ namespace ExtractFuntion
     public class ExcelManager
     {
         private static ExcelManager excelMngInstance;
+
+        private int cellIndex;
+        public int CELL_INDEX { get { return cellIndex; } set { cellIndex = value; } }
 
         public static ExcelManager Instance 
         { 
@@ -115,23 +119,43 @@ namespace ExtractFuntion
               
         }
 
-        public void Make_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method,int CellIndex)
+        public void Make_Excel_UI()
         {
-            Range ClassCell = worksheet.Cells[CellIndex + 1, 1];
-            Range MethodCell = worksheet.Cells[CellIndex + 1, 2];
+            Range ProjectNameCell = worksheet.Range["A1", "D1"];
+            ProjectNameCell.Merge();
+
+            worksheet.Rows[1].RowHeight = 40; // 행 1의 높이를 40포인트로 설정
+            worksheet.Columns["A"].ColumnWidth = 50; // 열 A의 너비를 30으로 설정
+            worksheet.Columns["B"].ColumnWidth = 50; // 열 B의 너비를 30으로 설정
+            worksheet.Columns["C"].ColumnWidth = 50; // 열 C의 너비를 30으로 설정
+            worksheet.Columns["D"].ColumnWidth = 50; // 열 D의 너비를 30으로 설정
+
+            // Cell 의 프로젝트 명 기입
+            ProjectNameCell.Value = worksheet.Name;
+
+            // Cell 의 배경색 변경
+            ProjectNameCell.Interior.Color = ColorTranslator.FromOle(Color.FromArgb(172, 185, 202).ToArgb());
+
+            excelFile.Save();
+        }
+
+        public void Make_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method,int CellIndex, int CurrentIndex)
+        {
+            Range ClassCell = worksheet.Cells[CellIndex + 2, 1];
+            Range MethodCell = worksheet.Cells[CellIndex + 2, 2];
 
             while (true)
             {
                 if (ClassCell.Value != null)
                 {
                     return;
-                }               
+                }
 
                 break;
             }
 
             ClassCell.Value = ClassFiles.Split('\\').Last();
-            MethodCell.Value = $"{Method.ElementAt(CellIndex).Modifiers} {Method.ElementAt(CellIndex).ReturnType} {Method.ElementAt(CellIndex).Identifier} {Method.ElementAt(CellIndex).ParameterList}";
+            MethodCell.Value = $"{Method.ElementAt(CurrentIndex).Modifiers} {Method.ElementAt(CurrentIndex).ReturnType} {Method.ElementAt(CurrentIndex).Identifier} {Method.ElementAt(CurrentIndex).ParameterList}";
 
             excelFile.Save();
         }
@@ -148,10 +172,22 @@ namespace ExtractFuntion
             ReleaseExcelObject(excelApp);
 
             //메모리 해제를 위한 처리
-            Marshal.FinalReleaseComObject(excelApp);
-            Marshal.FinalReleaseComObject(excelFiles);
-            Marshal.FinalReleaseComObject(excelFile);
-            Marshal.FinalReleaseComObject(worksheet);
+            if(excelApp != null) 
+            {
+                Marshal.FinalReleaseComObject(excelApp);
+            }
+            if (excelFiles != null)
+            {
+                Marshal.FinalReleaseComObject(excelFiles);
+            }
+            if (excelFile != null)
+            {
+                Marshal.FinalReleaseComObject(excelFile);
+            }
+            if (worksheet != null)
+            {
+                Marshal.FinalReleaseComObject(worksheet);
+            }
         }
     }
 }

@@ -87,11 +87,18 @@ namespace ExtractFuntion
                 var Method = Tree.GetRoot().DescendantNodes()
                          .OfType<MethodDeclarationSyntax>();
 
+                Console.WriteLine($"=============== [ClassFile] {ClassFile}");
+
+                // Excel UI 작업
+                ExcelManager.Instance.Make_Excel_UI();
+
                 // cs 파일의 정보와 해당 cs 파일의 모든 메소드의 정보를 엑셀에 기재
-                for (int i = 0; i < Method.Count(); i++)
+                for (int CurrentIndex = 0; CurrentIndex < Method.Count(); CurrentIndex++)
                 {
-                    ExcelManager.Instance.Make_CellValue(ClassFile, Method, i);
-                    Console.WriteLine($"Method{i} :{Method.ElementAt(i).Modifiers} {Method.ElementAt(i).ReturnType} {Method.ElementAt(i).Identifier} {Method.ElementAt(i).ParameterList}");
+                    ExcelManager.Instance.Make_CellValue(ClassFile, Method, ExcelManager.Instance.CELL_INDEX, CurrentIndex);
+                    Console.WriteLine($"Method{CurrentIndex} :{Method.ElementAt(CurrentIndex).Modifiers} {Method.ElementAt(CurrentIndex).ReturnType} {Method.ElementAt(CurrentIndex).Identifier} {Method.ElementAt(CurrentIndex).ParameterList}");
+
+                    ExcelManager.Instance.CELL_INDEX++;
                 }
             }
             catch(Exception ex) 
