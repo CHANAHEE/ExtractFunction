@@ -80,26 +80,7 @@ namespace ExtractFuntion
             return true;
         }
 
-        private void ReleaseExcelObject(object obj)
-        {
-            try
-            {
-                if (obj != null)
-                {
-                    Marshal.ReleaseComObject(obj);
-                    obj = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                obj = null;
-                throw ex;
-            }
-            finally
-            {
-                GC.Collect();
-            }
-        }
+
 
         public void Make_ExcelSheet(string ProjectFileName)
         {
@@ -115,8 +96,6 @@ namespace ExtractFuntion
             }
 
             worksheet.Name = ProjectFileName;
-
-              
         }
 
         public void Make_Excel_UI()
@@ -124,7 +103,7 @@ namespace ExtractFuntion
             Range ProjectNameCell = worksheet.Range["A1", "D1"];
             ProjectNameCell.Merge();
 
-            worksheet.Rows[1].RowHeight = 40; // 행 1의 높이를 40포인트로 설정
+            worksheet.Rows[1].RowHeight = 54; // 행 1의 높이를 40포인트로 설정
             worksheet.Columns["A"].ColumnWidth = 50; // 열 A의 너비를 30으로 설정
             worksheet.Columns["B"].ColumnWidth = 50; // 열 B의 너비를 30으로 설정
             worksheet.Columns["C"].ColumnWidth = 50; // 열 C의 너비를 30으로 설정
@@ -134,15 +113,78 @@ namespace ExtractFuntion
             ProjectNameCell.Value = worksheet.Name;
 
             // Cell 의 배경색 변경
-            ProjectNameCell.Interior.Color = ColorTranslator.FromOle(Color.FromArgb(172, 185, 202).ToArgb());
+            ProjectNameCell.Interior.Color = ColorTranslator.ToOle(Color.FromArgb(172, 185, 202));
+
+            // Cell 의 글씨체 변경
+            ProjectNameCell.Font.Name = "맑은 고딕";
+            ProjectNameCell.Font.Size = 36;
+            ProjectNameCell.Font.Bold = true;
+
+            // 가운데 정렬
+            ProjectNameCell.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+            // 파일 이름 Cell
+            Range FileNameCell = worksheet.Cells[3, 1];
+            ChangeSetting_CategoryCell(FileNameCell, "파일 이름");
+
+            // 함수 이름 Cell
+            Range FunctionNameCell = worksheet.Cells[3, 2];
+            ChangeSetting_CategoryCell(FunctionNameCell, "함수 이름");
+
+            // 설명 Cell
+            Range ClarificationCell = worksheet.Cells[3, 3];
+            ChangeSetting_CategoryCell(ClarificationCell, "설명");
+
+            // 비고 Cell
+            Range NoteCell = worksheet.Cells[3, 4];
+            ChangeSetting_CategoryCell(NoteCell, "비고");
 
             excelFile.Save();
         }
 
+        public void ChangeSetting_CategoryCell(Range Cell, string CellName)
+        {
+            Cell.Value = CellName;
+            Cell.Interior.Color = ColorTranslator.ToOle(Color.FromArgb(255, 230, 153));
+            Cell.Font.Name = "맑은 고딕";
+            Cell.Font.Size = 11;
+            Cell.Font.Bold = true;
+            Cell.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+            Borders NewBoards = Cell.Borders;
+            // 상단 테두리 설정
+            Border TopBorder = NewBoards[XlBordersIndex.xlEdgeTop];
+            TopBorder.LineStyle = XlLineStyle.xlContinuous;
+            TopBorder.ColorIndex = 0; // 검정색
+            TopBorder.TintAndShade = 0;
+            TopBorder.Weight = XlBorderWeight.xlThin;
+
+            // 하단 테두리 설정
+            Border BottomBorder = NewBoards[XlBordersIndex.xlEdgeBottom];
+            BottomBorder.LineStyle = XlLineStyle.xlContinuous;
+            BottomBorder.ColorIndex = 0; // 검정색
+            BottomBorder.TintAndShade = 0;
+            BottomBorder.Weight = XlBorderWeight.xlThin;
+
+            // 좌측 테두리 설정
+            Border LeftBorder = NewBoards[XlBordersIndex.xlEdgeLeft];
+            LeftBorder.LineStyle = XlLineStyle.xlContinuous;
+            LeftBorder.ColorIndex = 0; // 검정색
+            LeftBorder.TintAndShade = 0;
+            LeftBorder.Weight = XlBorderWeight.xlThin;
+
+            // 우측 테두리 설정
+            Border RightBorder = NewBoards[XlBordersIndex.xlEdgeRight];
+            RightBorder.LineStyle = XlLineStyle.xlContinuous;
+            RightBorder.ColorIndex = 0; // 검정색
+            RightBorder.TintAndShade = 0;
+            RightBorder.Weight = XlBorderWeight.xlThin;
+        }
+
         public void Make_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method,int CellIndex, int CurrentIndex)
         {
-            Range ClassCell = worksheet.Cells[CellIndex + 2, 1];
-            Range MethodCell = worksheet.Cells[CellIndex + 2, 2];
+            Range ClassCell = worksheet.Cells[CellIndex + 4, 1];
+            Range MethodCell = worksheet.Cells[CellIndex + 4, 2];
 
             while (true)
             {
@@ -187,6 +229,27 @@ namespace ExtractFuntion
             if (worksheet != null)
             {
                 Marshal.FinalReleaseComObject(worksheet);
+            }
+        }
+
+        private void ReleaseExcelObject(object obj)
+        {
+            try
+            {
+                if (obj != null)
+                {
+                    Marshal.ReleaseComObject(obj);
+                    obj = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                throw ex;
+            }
+            finally
+            {
+                GC.Collect();
             }
         }
     }
