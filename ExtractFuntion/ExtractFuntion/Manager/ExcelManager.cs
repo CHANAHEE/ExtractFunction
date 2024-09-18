@@ -181,22 +181,20 @@ namespace ExtractFuntion
             RightBorder.Weight = XlBorderWeight.xlThin;
         }
 
-        public void Make_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method,int CellIndex, int CurrentIndex)
+        public void Make_ClassFile_CellValue(string ClassFileName, IEnumerable<MethodDeclarationSyntax> MethodInfo, int StartIndex)
         {
-            Range ClassCell = worksheet.Cells[CellIndex + 4, 1];
+            Range ClassCell = worksheet.Range[worksheet.Cells[StartIndex + 4, 1], worksheet.Cells[StartIndex + (MethodInfo.Count() - 1) + 4, 1]];
+
+            Console.WriteLine($"[{StartIndex} + 4, 1] , [({MethodInfo.Count()} - 1) + 4, 1] Range is Merge");
+            ClassCell.Merge();
+            ClassCell.Value = ClassFileName.Split('\\').Last();
+
+            excelFile.Save();
+        }
+
+        public void Make_Function_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method, int CellIndex, int CurrentIndex)
+        {
             Range MethodCell = worksheet.Cells[CellIndex + 4, 2];
-
-            while (true)
-            {
-                if (ClassCell.Value != null)
-                {
-                    return;
-                }
-
-                break;
-            }
-
-            ClassCell.Value = ClassFiles.Split('\\').Last();
             MethodCell.Value = $"{Method.ElementAt(CurrentIndex).Modifiers} {Method.ElementAt(CurrentIndex).ReturnType} {Method.ElementAt(CurrentIndex).Identifier} {Method.ElementAt(CurrentIndex).ParameterList}";
 
             excelFile.Save();

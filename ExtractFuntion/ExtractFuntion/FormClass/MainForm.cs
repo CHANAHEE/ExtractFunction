@@ -28,7 +28,7 @@ namespace ExtractFuntion
         {            
             using (OpenFileDialog FileDialog = new OpenFileDialog())
             {
-                FileDialog.InitialDirectory = "D:\\Project\\ExtractFunctionProject\\ExtractFuntion";
+                FileDialog.InitialDirectory = "D:\\Project\\ExtractFunctionProject\\ExtractFunction\\ExtractFuntion";
                 FileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
                 FileDialog.FilterIndex = 2;
                 FileDialog.RestoreDirectory = true;
@@ -56,6 +56,9 @@ namespace ExtractFuntion
                 // 시트 생성
                 ExcelManager.Instance.Make_ExcelSheet(ProjectFileName.Replace(".csproj",""));
 
+                // Excel UI 작업
+                ExcelManager.Instance.Make_Excel_UI();
+
                 ExtractClassFile_All(ProjectFolderPath);
             }
 
@@ -75,6 +78,9 @@ namespace ExtractFuntion
             {                
                 ExtractMethod_All(file);
             }
+
+            // 클래스 파일 별 함수 개수 구분을 위한 변수 초기화
+            ExcelManager.Instance.CELL_INDEX = 0;
         }
 
         private void ExtractMethod_All(string ClassFile)
@@ -89,13 +95,16 @@ namespace ExtractFuntion
 
                 Console.WriteLine($"=============== [ClassFile] {ClassFile}");
 
-                // Excel UI 작업
-                ExcelManager.Instance.Make_Excel_UI();
-
-                // cs 파일의 정보와 해당 cs 파일의 모든 메소드의 정보를 엑셀에 기재
+                // cs 파일의 정보를 삽입
                 for (int CurrentIndex = 0; CurrentIndex < Method.Count(); CurrentIndex++)
                 {
-                    ExcelManager.Instance.Make_CellValue(ClassFile, Method, ExcelManager.Instance.CELL_INDEX, CurrentIndex);
+                    ExcelManager.Instance.Make_ClassFile_CellValue(ClassFile, Method, ExcelManager.Instance.CELL_INDEX);
+                }
+
+                //해당 cs 파일의 모든 메소드의 정보를 삽입
+                for (int CurrentIndex = 0; CurrentIndex < Method.Count(); CurrentIndex++)
+                {
+                    ExcelManager.Instance.Make_Function_CellValue(ClassFile, Method, ExcelManager.Instance.CELL_INDEX, CurrentIndex);
                     Console.WriteLine($"Method{CurrentIndex} :{Method.ElementAt(CurrentIndex).Modifiers} {Method.ElementAt(CurrentIndex).ReturnType} {Method.ElementAt(CurrentIndex).Identifier} {Method.ElementAt(CurrentIndex).ParameterList}");
 
                     ExcelManager.Instance.CELL_INDEX++;
