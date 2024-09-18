@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,7 +99,7 @@ namespace ExtractFuntion
             worksheet.Name = ProjectFileName;
         }
 
-        public void Make_Excel_UI()
+        public void Init_UI()
         {
             Range ProjectNameCell = worksheet.Range["A1", "D1"];
             ProjectNameCell.Merge();
@@ -192,10 +193,37 @@ namespace ExtractFuntion
             excelFile.Save();
         }
 
-        public void Make_Function_CellValue(string ClassFiles, IEnumerable<MethodDeclarationSyntax> Method, int CellIndex, int CurrentIndex)
+        public void Make_Function_CellValue(IEnumerable<MethodDeclarationSyntax> Method, int CellIndex, int CurrentIndex)
         {
             Range MethodCell = worksheet.Cells[CellIndex + 4, 2];
-            MethodCell.Value = $"{Method.ElementAt(CurrentIndex).Modifiers} {Method.ElementAt(CurrentIndex).ReturnType} {Method.ElementAt(CurrentIndex).Identifier} {Method.ElementAt(CurrentIndex).ParameterList}";
+            MethodCell.Value = $"{Method.ElementAt(CurrentIndex).ReturnType} {Method.ElementAt(CurrentIndex).Identifier} {Method.ElementAt(CurrentIndex).ParameterList}";
+
+            excelFile.Save();
+        }
+
+        public void Make_UI(int Last_CellIndex)
+        {
+            Range ClassCell = worksheet.Range[worksheet.Cells[4, 1], worksheet.Cells[4 + (Last_CellIndex - 1), 1]];            
+
+            ClassCell.Font.Name = "맑은 고딕";
+            ClassCell.Font.Size = 13;
+            ClassCell.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+            Range FunctionCell = worksheet.Range[worksheet.Cells[4, 2], worksheet.Cells[4 + (Last_CellIndex - 1), 2]];
+
+            FunctionCell.Font.Name = "맑은 고딕";
+            FunctionCell.Font.Size = 11;
+            FunctionCell.Font.Bold = true;
+            FunctionCell.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+            for (int i = 0; i < Last_CellIndex; i++)
+            {
+                Range FirstCell = worksheet.Cells[4 + i, 1];
+                FirstCell.RowHeight = 34.5;
+            }
+
+            Range FunctionCol = worksheet.Columns[2];
+            FunctionCol.AutoFit();
 
             excelFile.Save();
         }
