@@ -8,6 +8,10 @@ using System.Windows.Forms;
 using Microsoft.CodeAnalysis;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading;
+using Microsoft.Build.ObjectModelRemoting;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace ExtractFuntion
 {
@@ -40,29 +44,45 @@ namespace ExtractFuntion
             }
         }
 
-        private void button_StartExtract_Click(object sender, EventArgs e)
+        private async void button_StartExtract_Click(object sender, EventArgs e)
         {
             string SolutionPath = this.textBox_SolutionPath.Text;
 
             SolutionFile Solution = SolutionFile.Parse(SolutionPath);
             IEnumerable<ProjectInSolution> ProjectList = Solution.ProjectsInOrder;
 
+            this.progressBar_Progress.Minimum = 0;
+            this.progressBar_Progress.Maximum = ProjectList.Count();
+
+            int CurrentProgressPoint = 0;
+
             foreach (var Project in ProjectList)
+            {
+                await ExtractFunction_Process(Project, SolutionPath);
+
+                CurrentProgressPoint++;
+
+                this.progressBar_Progress.Value++;
+                this.label_ProgressPercent.Text = ((int)(((double)CurrentProgressPoint / (double)ProjectList.Count()) * 100)).ToString() + " %";
+            }
+        }
+
+        private Task ExtractFunction_Process(ProjectInSolution Project, string SolutionPath)
+        {
+            return Task.Run(() =>
             {
                 string ProjectFileName = Project.RelativePath.Replace($"{Project.ProjectName}\\", "");
                 string ProjectFilePath = Path.Combine(Path.GetDirectoryName(SolutionPath), Project.AbsolutePath);
                 string ProjectFolderPath = ProjectFilePath.Replace($"\\{ProjectFileName}", "");
 
                 // 시트 생성
-                ExcelManager.Instance.Make_ExcelSheet(ProjectFileName.Replace(".csproj",""));
+                ExcelManager.Instance.Make_ExcelSheet(ProjectFileName.Replace(".csproj", ""));
 
                 // Excel UI 초기 작업
                 ExcelManager.Instance.Init_UI();
 
                 ExtractClassFile_All(ProjectFolderPath);
-            }
-
-            // 엑셀 완료
+            });
         }
 
         private void ExtractClassFile_All(string ProjectPath)
@@ -72,7 +92,9 @@ namespace ExtractFuntion
                                                 Where(s => s.Contains("\\obj\\") == false).
                                                 Where(s => s.Contains("\\Config\\") == false).
                                                 Where(s => s.Contains(".Designer") == false).
-                                                Where(s => s.Contains("\\Properties\\") == false);
+                                                Where(s => s.Contains("\\Properties\\") == false).
+                                                Where(s => s.Contains("\\Design\\") == false).
+                                                Where(s => s.Contains("\\RuleDefine\\") == false);
 
             foreach (var file in files)
             {                
@@ -98,10 +120,12 @@ namespace ExtractFuntion
 
                 Console.WriteLine($"=============== [ClassFile] {ClassFile}");
 
-                // cs 파일의 정보를 삽입
-                for (int CurrentIndex = 0; CurrentIndex < Method.Count(); CurrentIndex++)
+                //해당 cs 파일 정보를 삽입
+                bool IsNotNullMethod = ExcelManager.Instance.Make_ClassFile_CellValue(ClassFile, Method.Count(), ExcelManager.Instance.CELL_INDEX);
+
+                if(IsNotNullMethod == false)
                 {
-                    ExcelManager.Instance.Make_ClassFile_CellValue(ClassFile, Method, ExcelManager.Instance.CELL_INDEX);
+                    return;
                 }
 
                 //해당 cs 파일의 모든 메소드의 정보를 삽입

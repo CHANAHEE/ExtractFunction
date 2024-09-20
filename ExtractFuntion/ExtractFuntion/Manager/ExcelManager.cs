@@ -67,7 +67,6 @@ namespace ExtractFuntion
                 excelFile.SaveAs(ExcelFileName);
             }
             
-
             //Range NewCell_1 = NewWorkSheet.Cells[1, 1];
             //Range NewCell_2 = NewWorkSheet.Cells[1, 2];
             //Range NewCell_3 = NewWorkSheet.Cells[2, 1];
@@ -182,15 +181,22 @@ namespace ExtractFuntion
             RightBorder.Weight = XlBorderWeight.xlThin;
         }
 
-        public void Make_ClassFile_CellValue(string ClassFileName, IEnumerable<MethodDeclarationSyntax> MethodInfo, int StartIndex)
+        public bool Make_ClassFile_CellValue(string ClassFileName, int MethodCount, int StartIndex)
         {
-            Range ClassCell = worksheet.Range[worksheet.Cells[StartIndex + 4, 1], worksheet.Cells[StartIndex + (MethodInfo.Count() - 1) + 4, 1]];
+            if (MethodCount == 0)
+            {
+                return false;
+            }
 
-            Console.WriteLine($"[{StartIndex} + 4, 1] , [({MethodInfo.Count()} - 1) + 4, 1] Range is Merge");
+            Range ClassCell = worksheet.Range[worksheet.Cells[StartIndex + 4, 1], worksheet.Cells[StartIndex + (MethodCount - 1) + 4, 1]];
+
+            //Console.WriteLine($"[{StartIndex} + 4, 1] , [({MethodInfo.Count()} - 1) + 4, 1] Range is Merge");
             ClassCell.Merge();
             ClassCell.Value = ClassFileName.Split('\\').Last();
 
             excelFile.Save();
+
+            return true;
         }
 
         public void Make_Function_CellValue(IEnumerable<MethodDeclarationSyntax> Method, int CellIndex, int CurrentIndex)

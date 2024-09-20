@@ -1,0 +1,9 @@
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\bin\Debug\ExtractFunction2.exe.config
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\bin\Debug\ExtractFunction2.exe
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\bin\Debug\ExtractFunction2.pdb
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\obj\Debug\ExtractFunction2.csproj.AssemblyReference.cache
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\obj\Debug\ExtractFunction2.Properties.Resources.resources
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\obj\Debug\ExtractFunction2.csproj.GenerateResource.cache
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\obj\Debug\ExtractFunction2.csproj.CoreCompileInputs.cache
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\obj\Debug\ExtractFunction2.exe
+D:\Private\ExtractFunction\ExtractFuntion\ExtractFunction2\obj\Debug\ExtractFunction2.pdb
